@@ -1,8 +1,7 @@
 % Reseni prihradove konstrukce (predmet NLMECH)
 %
-% Teorie 2. radu
+% Stabilita prutu (teorie 2. radu)
 %
-
 clear; clc
 
 % Dimenze ulohy (2 stupne volnosti:u,v, 2 uzly na prutu):
@@ -24,7 +23,7 @@ uzly=[
 2 1.6;
 5 1.6;
 8 1.6;
-11 1.6;
+11 1.6
 ];
 pruty=[
 1 2 0.1 0;
@@ -89,38 +88,26 @@ F = zeros(velikost,1);
 
 % Sestaveni a lokalizace matic tuhosti:
 for i=1:nprutu
-	% Delka prutu
-	dx2 = (uzly(pruty(i,1),1)-uzly(pruty(i,2),1))^2;
-	dy2 = (uzly(pruty(i,1),2)-uzly(pruty(i,2),2))^2;
-	L = sqrt(dx2 + dy2);
+  % Delka prutu
+  dx2 = (uzly(pruty(i,1),1)-uzly(pruty(i,2),1))^2;
+  dy2 = (uzly(pruty(i,1),2)-uzly(pruty(i,2),2))^2;
+  L = sqrt(dx2 + dy2);
 
-	% Matice tuhosti:
+  % Matice tuhosti:
   S=[1 0 ; 1 L];
   B=[0 1];
   
-  % CV2: test, zda prut byl tlaceny
-  if pruty(i,3) < 0.05
-    if pruty(i,4) < 1
-        D=[E]; % Tazeny
-    else
-        D=[E/1000]; % Tlaceny
-        %disp('Pocitam s tlacenym prutem...')
-        %i
-    end
-  else
-      D=[E];
-  end
-  
   Si=inv(S);
   A = pruty(i,3); % Toto je nove pro NLM
-  Kel=A*L*Si'*B'*D*B*Si;
+  Kel=A*L*Si'*B'*E*B*Si;
   Keg=[Kel(1,1) 0 Kel(1,2) 0 ;
       0 0 0 0 ;
       Kel(2,1) 0 Kel(2,2) 0
       0 0 0 0 ];
-	% Transformace:
-	s = (uzly(pruty(i,2),2)-uzly(pruty(i,1),2))/L;
-	c = (uzly(pruty(i,2),1)-uzly(pruty(i,1),1))/L;
+  
+  % Transformace:
+  s = (uzly(pruty(i,2),2)-uzly(pruty(i,1),2))/L;
+  c = (uzly(pruty(i,2),1)-uzly(pruty(i,1),1))/L;
   T = [ c s 0 0 ; -s c 0 0 ; 
         0 0 c s ; 0 0 -s c ] ;
   Ke = T' * Keg * T;
@@ -135,23 +122,23 @@ end
 
 % Zatizeni:
 for i=1:nsil
-	iuz=sily(i,1);
-	ismer=sily(i,2);
-	pos = (ndof*(iuz-1))+ismer;
+  iuz=sily(i,1);
+  ismer=sily(i,2);
+  pos = (ndof*(iuz-1))+ismer;
   F(pos) = F(pos)+sily(i,3);
 end
 
 % Podpory:
 for i=1:npodpor
-	iuz=podpory(i,1);
-	ismer=podpory(i,2);
-	pos = (ndof*(iuz-1))+ismer;
+  iuz=podpory(i,1);
+  ismer=podpory(i,2);
+  pos = (ndof*(iuz-1))+ismer;
   u(pos) = u(pos)+podpory(i,3);
-	for j=1:velikost
+  for j=1:velikost
     K(pos,j) = 0.0 ;
     K(j,pos) = 0.0 ;
   end
-	K(pos,pos) = 1.0 ;
+  K(pos,pos) = 1.0 ;
 end
 
 % RESENI soustavy rovnic:
@@ -159,13 +146,9 @@ u=K\F;
 
 gmult = 0.025*max(uzly(:))/max(u); % kvuli grafice
 
-% CV3 vektor pro nevyvazene sily:
-g = zeros(velikost,1);
-
 % Vypocet vysledku na prutech:
 for i=1:nprutu
 	ue  = zeros(puzlu*ndof,1);
-	uel = zeros(puzlu*ndof,1);
 
 	% Ziskani lokalnich vektoru deformaci:
 	for j=1:(puzlu*ndof)
@@ -178,13 +161,13 @@ for i=1:nprutu
   uzly(pruty(i,2),1) = uzly(pruty(i,2),1) +  ue(3) ;
   uzly(pruty(i,2),2) = uzly(pruty(i,2),2) +  ue(4) ;
 
-	% Transformace:
-	dx2 = (uzly(pruty(i,1),1)-uzly(pruty(i,2),1))^2;
-	dy2 = (uzly(pruty(i,1),2)-uzly(pruty(i,2),2))^2;
-	L = sqrt(dx2 + dy2);
+  % Transformace:
+  dx2 = (uzly(pruty(i,1),1)-uzly(pruty(i,2),1))^2;
+  dy2 = (uzly(pruty(i,1),2)-uzly(pruty(i,2),2))^2;
+  L = sqrt(dx2 + dy2);
 
-	s = (uzly(pruty(i,2),2)-uzly(pruty(i,1),2))/L;
-	c = (uzly(pruty(i,2),1)-uzly(pruty(i,1),1))/L;
+  s = (uzly(pruty(i,2),2)-uzly(pruty(i,1),2))/L;
+  c = (uzly(pruty(i,2),1)-uzly(pruty(i,1),1))/L;
   T = [ c s 0 0 ; -s c 0 0 ; 
         0 0 c s ; 0 0 -s c ] ;
   uel = T * ue;
@@ -192,29 +175,16 @@ for i=1:nprutu
   % Matice tuhosti (jen lokalni):
   S=[1 0 ; 1 L];
   B=[0 1];
-  
-  % CV2: test, zda prut byl tlaceny
-  if pruty(i,3) < 0.05
-    if pruty(i,4) < 1
-        D=[E]; % Tazeny
-    else
-        D=[E/1000]; % Tlaceny
-        %disp('Pocitam s tlacenym prutem...')
-    end
-    else
-      D=[E];
-  end
-  
   Si=inv(S);
   A = pruty(i,3); % Toto je nove pro NLM
-  Kel=A*L*Si'*B'*D*B*Si;
+  Kel=A*L*Si'*B'*E*B*Si;
   Kelb=[Kel(1,1) 0 Kel(1,2) 0 ;
       0 0 0 0 ;
       Kel(2,1) 0 Kel(2,2) 0
       0 0 0 0 ];
 	
   % sily v prutech:
-	Fe = Kelb * uel;
+  Fe = Kelb * uel;
   N = Fe(1);
 
   % CV5 geometricka matice dle prednasky:
@@ -234,10 +204,6 @@ for i=1:nprutu
     souradnice(:,:,i)=[
         uzly(pruty(i,1),1) uzly(pruty(i,1),2) ;
         uzly(pruty(i,2),1) uzly(pruty(i,2),2) ];
-    
-    souradnicedef(:,:,i)=[
-        uzly(pruty(i,1),1)+ue(1)*gmult uzly(pruty(i,1),2)+ue(2)*gmult ;
-        uzly(pruty(i,2),1)+ue(3)*gmult uzly(pruty(i,2),2)+ue(4)*gmult ];
 end
 
 % CV5 vypocet vlastnich cisel (mocnina nasobitele zatizeni):
@@ -253,31 +219,60 @@ for i=1:npodpor
 	M(pos,pos) = 1.0 ;
 end
 
-d = eig(K, M); % Nefunguje v Octave 2.x :-(
+[v,d] = eig(K, M); % Nefunguje v Octave 2.x :-(
 
+D=diag(d);
 disp('Nasobitel zatizeni je:')
-sqrt(d(1))
+dd = D(1);
+di = 0;
+for iy=1:size(D,1)
+    if D(iy) < dd
+        if (D(iy)) > 0
+            if D(iy) == 1.0
+                % nic...
+            else
+              dd = D(iy);
+              di = iy ;
+            end
+        end
+    end
+end
+sqrt(dd)
+
+% CV5 deformovana konstrukce
+gmult = 0.05*max(uzly(:))/max(v(:)); % kvuli grafice
+
+for i=1:nprutu
+	ue  = zeros(puzlu*ndof,1);
+    
+    ue(1) = v(2*pruty(i,1)-1,di);
+    ue(2) = v(2*pruty(i,1),di);
+    ue(3) = v(2*pruty(i,2)-1,di);
+    ue(4) = v(2*pruty(i,2),di);
+    ue;
+    souradnicedef(:,:,i)=[
+        uzly(pruty(i,1),1)+ue(1)*gmult uzly(pruty(i,1),2)+ue(2)*gmult ;
+        uzly(pruty(i,2),1)+ue(3)*gmult uzly(pruty(i,2),2)+ue(4)*gmult ];
+end
 
  % Grafika - vykresleni konstrukce:
  hold on
  for i=1:nprutu
-     if pruty(i,3) > 0.05
-         % tvar konstrukce:
-         plot(souradnice(:,1,i),souradnice(:,2,i),'-r');
-         % vykresleni deformaci:
+   if pruty(i,3) > 0.05
+     % tvar konstrukce:
+     plot(souradnice(:,1,i),souradnice(:,2,i),'-r');
+     % vykresleni deformaci:
      plot(souradnicedef(:,1,i),souradnicedef(:,2,i),'-g');
+   else
+     if pruty(i,4) < 1
+       % tvar konstrukce:
+       plot(souradnice(:,1,i),souradnice(:,2,i),'-b');
+       % vykresleni deformaci:
+       plot(souradnicedef(:,1,i),souradnicedef(:,2,i),'-g');
      else
-         if pruty(i,4) < 1
-         % tvar konstrukce:
-         plot(souradnice(:,1,i),souradnice(:,2,i),'-b');
-         % vykresleni deformaci:
-         plot(souradnicedef(:,1,i),souradnicedef(:,2,i),'-g');
-         else
-             plot(souradnice(:,1,i),souradnice(:,2,i),'-y');
-         end
+       plot(souradnice(:,1,i),souradnice(:,2,i),'-y');
      end
+   end
  end
- %axis equal
+ axis equal
  hold off
- 
-%pruty
