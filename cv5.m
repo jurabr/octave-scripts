@@ -222,7 +222,7 @@ for i=1:nprutu
                0  1  0 -1 ;
                0  0  0  0 ;
                0 -1  0  1 ];
-  Mg = T' * Keg * T;
+  Mg = T' * Me * T;
   
   for j=1:(puzlu*ndof)
     for k=1:(puzlu*ndof)
