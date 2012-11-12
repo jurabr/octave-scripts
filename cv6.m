@@ -1,6 +1,6 @@
 % Reseni prihradove konstrukce (predmet NLMECH)
 %
-% Teorie 2. radu
+% Linearni stabilita: Euleruv proste ulozeny nosnik
 %
 
 clear; clc
@@ -29,7 +29,7 @@ uzly=[
 2.0  0 
 ];
 
-uzly = 8*uzly;
+uzly = 1*uzly;
 pruty=[
 1 2 ;
 2 3 ;
@@ -173,24 +173,28 @@ for i=1:nprutu
         0 6*E*I/L^2 2*E*I/L 0 -6*E*I/L^2 4*E*I/L ];
 
   % sily v prutech:
-	Fe = Kelb * uel;
+  Fe = Kelb * uel;
   N = Fe(1);
 
   % geometricka matice:
-  Mn = (N/L)*[ 1  0  0 -1  0  0;
-               0  1  0  0 -1  0;
-               0  0  0  0  0  0
-              -1  0  0  1  0  0;
-               0 -1  0  0  1  0
-               0  0  0  0  0  0];
-
   Mb = (N/(30*L))* [0 0   0     0  0  0 ;
                    0 36  3*L   0 -36 3*L ;
                    0 3*L 4*L^2 0 -3*L -(L^2) ;
                    0 0   0     0  0    0 ;
                    0 -36 -3*L  0  36 -3*L ;
                    0  3*L -(L^2) 0 -3*L 4*L^2 ];
-  Me = Mn + Mb ;
+  Me = Mb 
+  
+  % Alternative:
+  Me0= N/L * [0 0 0 0 0 0 ;
+      0 6/5 L/10 0 -6/5 L/10 ;
+      0 L/10 2*L^2/15 0 -L/10 -L^2/30 ;
+      0 0 0 0 0 0 ;
+      0 -6/5 -L/10 0 6/5 -L/10 ;
+      0 L/10 -L^2/30 0 -L/10 2*L^2/15]
+   
+   
+  % TRansformation:
   Mg = T' * Me * T;
 
   for j=1:(puzlu*ndof)
