@@ -177,24 +177,14 @@ for i=1:nprutu
   N = Fe(1);
 
   % geometricka matice:
-  Mb = (N/(30*L))* [0 0   0     0  0  0 ;
-                   0 36  3*L   0 -36 3*L ;
-                   0 3*L 4*L^2 0 -3*L -(L^2) ;
-                   0 0   0     0  0    0 ;
-                   0 -36 -3*L  0  36 -3*L ;
-                   0  3*L -(L^2) 0 -3*L 4*L^2 ];
-  Me = Mb 
-  
-  % Alternative:
-  Me0= N/L * [0 0 0 0 0 0 ;
+  Me= N/L * [0 0 0 0 0 0 ;
       0 6/5 L/10 0 -6/5 L/10 ;
       0 L/10 2*L^2/15 0 -L/10 -L^2/30 ;
       0 0 0 0 0 0 ;
       0 -6/5 -L/10 0 6/5 -L/10 ;
       0 L/10 -L^2/30 0 -L/10 2*L^2/15]
    
-   
-  % TRansformation:
+  % Transformation:
   Mg = T' * Me * T;
 
   for j=1:(puzlu*ndof)
