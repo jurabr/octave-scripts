@@ -1,4 +1,3 @@
-% Reseni prihradove konstrukce (predmet NLMECH)
 %
 % Linearni stabilita: Euleruv proste ulozeny nosnik
 %
@@ -138,9 +137,6 @@ u=K\F ;
 
 % Vypocet vysledku na prutech:
 for i=1:nprutu
-  Mn=zeros(puzlu*ndof);
-  Mb=zeros(puzlu*ndof);
-  Mg=zeros(puzlu*ndof);
 	ue  = zeros(puzlu*ndof,1);
 	uel = zeros(puzlu*ndof,1);
 
@@ -182,7 +178,7 @@ for i=1:nprutu
       0 L/10 2*L^2/15 0 -L/10 -L^2/30 ;
       0 0 0 0 0 0 ;
       0 -6/5 -L/10 0 6/5 -L/10 ;
-      0 L/10 -L^2/30 0 -L/10 2*L^2/15]
+      0 L/10 -L^2/30 0 -L/10 2*L^2/15];
    
   % Transformation:
   Mg = T' * Me * T;
