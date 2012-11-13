@@ -237,7 +237,7 @@ for iy=1:size(D,1)
         end
     end
 end
-sqrt(dd)
+dd
 
 % CV5 deformovana konstrukce
 gmult = 0.05*max(uzly(:))/max(v(:)); % kvuli grafice
