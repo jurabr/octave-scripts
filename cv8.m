@@ -166,12 +166,10 @@ for i=1:nprutu
   z(2) = uzly(pruty(i,2),3);
   
   if (y(1)-y(2))*(x(2)-x(1)) == 0
-	  disp('XXX')
     x(3) = x(2) + 1  ;
     y(3) = y(2)   ;
     z(3) = z(2) + 1  ;
   else
-	  disp('YYY')
     x(3) = x(2) ;
     y(3) = y(2);
     z(3) = z(2) + 1 ;
