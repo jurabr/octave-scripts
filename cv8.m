@@ -135,8 +135,7 @@ end
 % RESENI soustavy rovnic:
 u=K\F;
 
-
-gmult = 0.025*max(uzly(:))/max(u); % kvuli grafice
+gmult = 0.025*max(uzly(:))/max(abs(u)); % kvuli grafice
 
 % Vypocet vysledku na prutech:
 for i=1:nprutu
@@ -153,31 +152,59 @@ for i=1:nprutu
   dy = (uzly(pruty(i,2),2)-uzly(pruty(i,1),2));
   dz = (uzly(pruty(i,2),3)-uzly(pruty(i,1),3));
   L = sqrt(dx^2 + dy^2 + dz^2);
-  a = dx / L ;
-  b = dy / L ;
-  c = dz / L ;
-  T = [ a b c 0 0 0 ;
-        0 0 0 0 0 0 ;
-        0 0 0 0 0 0 ;
-        0 0 0 a b c ;
-        0 0 0 0 0 0 ;
-        0 0 0 0 0 0 ];
-  co=cos(0);
-  so=sin(0);
-  cxz=sqrt(a^2+c^2);
-  if abs(cxz)  < 1e-9
-  TT = [ 1 0 0 0 0 0 ;
-         0 1 0 0 0 0 ;
-         0 0 1 0 0 0 ;
-         0 0 0 1 0 0 ;
-         0 0 0 0 1 0 ;
-         0 0 0 0 0 1 ]
+
+  % alternativni transformacni matice:
+  x = zeros(3,1);
+  y = zeros(3,1);
+  z = zeros(3,1);
+
+  x(1) = uzly(pruty(i,1),1);
+  y(1) = uzly(pruty(i,1),2);
+  z(1) = uzly(pruty(i,1),3);
+  x(2) = uzly(pruty(i,2),1);
+  y(2) = uzly(pruty(i,2),2);
+  z(2) = uzly(pruty(i,2),3);
+  
+  if (y(1)-y(2))*(x(2)-x(1)) == 0
+	  disp('XXX')
+    x(3) = x(2) + 1  ;
+    y(3) = y(2)   ;
+    z(3) = z(2) + 1  ;
   else
-  T1 = [ a b c ;
-    -(a*b*co+c*so)/cxz cxz*co -(b*c*co+a*so)/cxz ;
-    (a*b*so-c*co)/cxz -cxz*so (b*c*so+a*co)/cxz ];
-  nula = zeros(3);
-  TT=[ T1  nula ; nula T1 ]
+	  disp('YYY')
+    x(3) = x(2) ;
+    y(3) = y(2);
+    z(3) = z(2) + 1 ;
+  end
+
+  a1 = (x(2)-x(1)) / L ;
+  b1 = (y(2)-y(1)) / L ;
+  c1 = (z(2)-z(1)) / L ;
+  
+  A = (y(3)-y(1))*(z(2)-z(1)) - (y(2)-y(1))*(z(3)-z(1)) 
+  B = (z(3)-z(1))*(x(2)-x(1)) - (z(2)-z(1))*(x(3)-x(1)) 
+  C = (x(3)-x(1))*(y(2)-y(1)) - (x(2)-x(1))*(y(3)-y(1)) 
+  
+  d = sqrt(A^2 + B^2 + C^2 ) ;
+  a2 = A/d ;
+  b2 = B/d ;
+  c2 = C/d ;
+
+  a3 = b1*c2 - c1*b2 ;
+  b3 = a2*c1 - a1*c2 ;
+  c3 = a1*b2 - a2*b1 ;
+ 
+  tt = [ a1 b1 c1 ;
+         a2 b2 c3 ;
+	 a3 b3 c3 ]
+
+  TT = zeros(6,6) ;
+  for ii=1:2
+    for jj=1:3
+      for kk=1:3
+      TT( (ii-1)*3+jj,(ii-1)*3+kk ) = tt(jj,kk);
+      end
+    end
   end
 
   % Matice tuhosti:
@@ -203,7 +230,7 @@ for i=1:nprutu
 	          0 0 1 0 0 -1 ;
 	          0 0 0 0 0 0 ;
 	          0 -1 0 0 1 0 ;
-	          0 0 -1 0 0 1 ]
+	          0 0 -1 0 0 1 ];
 
   Kgg = TT' * Kge * TT ;
 
