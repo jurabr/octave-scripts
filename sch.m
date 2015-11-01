@@ -29,16 +29,17 @@ uzly=[
 2.0 1.0 ;
 1.0 0.0 ;
 1.0 1.0 ];
+% Posledni clen je prirazeni do podoblasti
 pruty=[
-1 5 0.1 ;
-1 6 0.1 ;
-2 6 0.1 ;
-1 2 0.1 ;
-5 3 0.1 ;
-3 6 0.1 ;
-6 4 0.1 ;
-3 4 0.1 ;
-5 6 0.1 ];
+1 5 0.1 1;
+1 6 0.1 1;
+2 6 0.1 1;
+1 2 0.1 1;
+5 3 0.1 2;
+3 6 0.1 2;
+6 4 0.1 2;
+3 4 0.1 2;
+5 6 0.1 2];
 nuzlu=size(uzly,1);
 nprutu=size(pruty,1);
 
@@ -63,7 +64,10 @@ nsil=size(sily,1);
 
 % VYPOCET: --------------------------------
 
-% Vypocet kodovych cisel:
+% Pocet podoblasti pro Kii, Kib
+subareas=max(pruty(:,4))
+
+% Vypocet kodovych cisel (TODO):
 kcis=zeros(nprutu,ndof*puzlu);
 for i=1:nprutu
   for j=1:puzlu
@@ -179,26 +183,26 @@ for i=1:nprutu
   % VYSLEDEK - sily v prutech:
 	Fe = Keg * uel ;
     
-    souradnice(:,:,i)=[
-        uzly(pruty(i,1),1) uzly(pruty(i,1),2) ;
-        uzly(pruty(i,2),1) uzly(pruty(i,2),2) ];
-    
-    souradnicedef(:,:,i)=[
-        uzly(pruty(i,1),1)+ue(1)*gmult uzly(pruty(i,1),2)+ue(2)*gmult ;
-        uzly(pruty(i,2),1)+ue(3)*gmult uzly(pruty(i,2),2)+ue(4)*gmult ];
+%     souradnice(:,:,i)=[
+%         uzly(pruty(i,1),1) uzly(pruty(i,1),2) ;
+%         uzly(pruty(i,2),1) uzly(pruty(i,2),2) ];
+%     
+%     souradnicedef(:,:,i)=[
+%         uzly(pruty(i,1),1)+ue(1)*gmult uzly(pruty(i,1),2)+ue(2)*gmult ;
+%         uzly(pruty(i,2),1)+ue(3)*gmult uzly(pruty(i,2),2)+ue(4)*gmult ];
 end
 
 
-% Grafika - vykresleni konstrukce:
-hold on
-for i=1:nprutu
-  % tvar konstrukce:
-  plot(souradnice(:,1,i),souradnice(:,2,i),'-r');
-  % vykresleni deformaci:
-  plot(souradnicedef(:,1,i),souradnicedef(:,2,i),'-g');
-end
-%axis equal
-hold off
+% % Grafika - vykresleni konstrukce:
+% hold on
+% for i=1:nprutu
+%   % tvar konstrukce:
+%   plot(souradnice(:,1,i),souradnice(:,2,i),'-r');
+%   % vykresleni deformaci:
+%   plot(souradnicedef(:,1,i),souradnicedef(:,2,i),'-g');
+% end
+% %axis equal
+% hold off
 
 
 % -----------------------------
