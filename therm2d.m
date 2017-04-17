@@ -136,9 +136,32 @@ end
 % Kresleni:
 hold on
 for i=1:nprvku
-  plot(souradnice(:,1,i),souradnice(:,2,i),'--r')
+  %plot(souradnice(:,1,i),souradnice(:,2,i),'--r')
 end
+
 
 
 % RESENI soustavy rovnic (vysledne teploty):
 u=K\F
+
+% Malovani barvicek podle teplot:
+axis equal
+maplen = 12 ; % pocet barev
+colormap (jet (maplen)); % barevna mapa
+for i=1:nprvku
+  c(i) = 0 ;
+  for j=1:puzlu % souradnice ve tvaru, co potrebuje "patch"
+    xi(i,j) = uzly(prvky(i,j),1) ;
+    yi(i,j) = uzly(prvky(i,j),2) ;
+    c(i) = c(i) + u(kcis(i,j)) ;
+  end
+	c(i) = c(i)/puzlu; % prumerna hodnota na prvku
+end
+cmi = min(c) ; cma=max(c); % max. a min. hodnota
+for i=1:nprvku
+	c(i) = (((c(i)-cmi) / ((cma-cmi)))*maplen) ;
+end
+caxis([cmi cma]); % rozsah osy
+colorbar; % teplomer
+p = patch (xi', yi'); % kresleni ploch
+set (p, "cdatamapping", "direct", "facecolor", "flat", "cdata", c ); %vybarveni
