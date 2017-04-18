@@ -163,5 +163,5 @@ for i=1:nprvku
 end
 caxis([cmi cma]); % rozsah osy
 colorbar; % teplomer
-p = patch (xi', yi'); % kresleni ploch
+p = patch (xi', yi', "b"); % kresleni ploch
 set (p, "cdatamapping", "direct", "facecolor", "flat", "cdata", c ); %vybarveni
