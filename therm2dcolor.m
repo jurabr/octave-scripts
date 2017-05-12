@@ -149,7 +149,7 @@ maplen = 12 ; % pocet barev
 colormap (jet (maplen)); % barevna mapa
 for i=1:nprvku
   c(i) = 0 ;
-  for j=1:puzlu % souradnice ve tvaru, co potrebuje "patch"
+  for j=1:puzlu % souradnice ve tvaru, co potrebuje 'patch'
     xi(i,j) = uzly(prvky(i,j),1) ;
     yi(i,j) = uzly(prvky(i,j),2) ;
     c(i) = c(i) + u(kcis(i,j)) ;
@@ -163,4 +163,4 @@ end
 caxis([cmi cma]); % rozsah osy
 colorbar; % teplomer
 p = patch (xi', yi'); % kresleni ploch
-set (p, "cdatamapping", "direct", "facecolor", "flat", "cdata", c ); %vybarveni
+set (p, 'cdatamapping', 'direct', 'facecolor', 'flat', 'cdata', c ); %vybarveni
