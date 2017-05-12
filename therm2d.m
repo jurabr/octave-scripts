@@ -34,9 +34,10 @@ podpory=[
 1 1 -5 ;
 2 1 -5 ;
 3 1 -5 ;
-7 1 10 ;
-8 1 10 ;
-9 1 10 ];
+7 1 15 ;
+8 1 15 ;
+9 1 15 ;
+];
 npodpor=size(podpory,1)
 
 % ZADANI - sily (uzel,smer,velikost):
@@ -44,6 +45,17 @@ sily=[
 3 1 0 ;
 4 1 0 ];
 nsil=size(sily,1);
+
+% KRESLENI:
+s_x = zeros(puzlu*nprvku,1);
+s_y = zeros(puzlu*nprvku,1);
+
+for i=0:(nprvku-1)
+  for j=1:puzlu
+    s_x(puzlu*i+j) = uzly(prvky(i+1,j),1);
+    s_y(puzlu*i+j) = uzly(prvky(i+1,j),2);
+  end
+end
 
 % VYPOCET: --------------------------------
 
@@ -94,8 +106,8 @@ for i=1:nprvku
   % Plocha prvku
   A = 0.5*(x(1)*y(2)-x(2)*y(1)+x(2)*y(3)-x(3)*y(2)+x(3)*y(1)-x(1)*y(3));
   
-   % kvuli kresleni:
-  souradnice(:,:,i)=[x(1) y(1);x(2) y(2); x(3) y(3); x(1) y(1)];
+  % kvuli kresleni:
+  %souradnice(:,:,i)=[x(1) y(1);x(2) y(2); x(3) y(3); x(1) y(1)];
     
   Ke=A*t*Si'*B'*D*B*Si;
      
@@ -132,36 +144,88 @@ for i=1:npodpor
     end
 end
 
-
-% Kresleni:
-hold on
-for i=1:nprvku
-  %plot(souradnice(:,1,i),souradnice(:,2,i),'--r')
-end
-
-
-
 % RESENI soustavy rovnic (vysledne teploty):
 u=K\F
 
-% Malovani barvicek podle teplot:
-axis equal
-maplen = 12 ; % pocet barev
-colormap (jet (maplen)); % barevna mapa
+
+% Kresleni: ------------------------------------------
+hold on
+plot(s_x,s_y,'0');
+
+% Pokus o izolinie pro teploty:
+t_max = max(u);
+t_min = min(u);
+t_del = (t_max - t_min) / 4;
+t_lim = zeros(5,2);
+t_lim(1,2) = 3; % colors
+t_lim(2,2) = 5;
+t_lim(3,2) = 2;
+t_lim(4,2) = 4;
+t_lim(5,2) = 1;
+t_lim(1,1) = t_min ;
+for i=2:5
+  t_lim(i,1) = t_min+ (i-1)*t_del ;
+end
+t_lim
+
+% Isolines 
 for i=1:nprvku
-  c(i) = 0 ;
-  for j=1:puzlu % souradnice ve tvaru, co potrebuje "patch"
-    xi(i,j) = uzly(prvky(i,j),1) ;
-    yi(i,j) = uzly(prvky(i,j),2) ;
-    c(i) = c(i) + u(kcis(i,j)) ;
+  xyt = zeros(puzlu+1,3); % element data
+  px  = zeros(2,1);       % line coordinates
+  py  = zeros(2,1);       % line coordinates
+  for j=1:puzlu
+    xyt(j,1) = uzly(prvky(i,j),1) ;
+    xyt(j,2) = uzly(prvky(i,j),2) ;
+    xyt(j,3) = u(kcis(i,j)) ;
   end
-	c(i) = c(i)/puzlu; % prumerna hodnota na prvku
+  xyt(puzlu+1,1) = uzly(prvky(i,1),1) ;
+  xyt(puzlu+1,2) = uzly(prvky(i,1),2) ;
+  xyt(puzlu+1,3) = u(kcis(i,1)) ;
+
+  for k=1:5 % test - isoline
+    pos = 0 ;
+    for j=1:puzlu
+      if (xyt(j,3)<xyt(j+1,3))
+      if ( t_lim(k,1) > xyt(j,3) ) 
+        if ( t_lim(k,1) < xyt(j+1,3) ) 
+          pos = pos+1 ;
+          L = xyt(j+1,3)-xyt(j,3);
+          if (L == 0)
+            mult = 0.5 ;
+          else
+            mult = 1-abs(t_lim(k,1)-xyt(j,3)) / L ;
+          end
+          px(pos) = mult * ( xyt(j+1,1)-xyt(j,1)) + xyt(j,1);
+          py(pos) = mult * ( xyt(j+1,2)-xyt(j,2)) + xyt(j,2);
+          if (pos == 2)
+            plot(px,py,num2str(t_lim(k,2)));
+            pos = 0 ;
+          end
+        end
+      end
+      else
+      %----------------------------------------------
+        if ( t_lim(k,1) < xyt(j,3) ) 
+        if ( t_lim(k,1) > xyt(j+1,3) ) 
+          pos = pos+1 ;
+          L = abs(xyt(j,3)-xyt(j+1,3));
+          if (L < 0.00001)
+            mult = 0.5 ;
+          else
+            mult = abs((t_lim(k,1)-xyt(j+1,3)) / L) ;
+          end
+          px(pos) = mult * ( xyt(j+1,1)-xyt(j,1)) + xyt(j,1);
+          py(pos) = mult * ( xyt(j+1,2)-xyt(j,2)) + xyt(j,2);
+          if (pos == 2)
+            plot(px,py,num2str(t_lim(k,2)));
+            pos = 0 ;
+          end
+        end
+      end
+      %----------------------------------------------
+      end
+    end
+  end
+
 end
-cmi = min(c) ; cma=max(c); % max. a min. hodnota
-for i=1:nprvku
-	c(i) = (((c(i)-cmi) / ((cma-cmi)))*maplen) ;
-end
-caxis([cmi cma]); % rozsah osy
-colorbar; % teplomer
-p = patch (xi', yi', "b"); % kresleni ploch
-set (p, "cdatamapping", "direct", "facecolor", "flat", "cdata", c ); %vybarveni
+hold off
